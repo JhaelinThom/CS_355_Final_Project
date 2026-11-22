@@ -18,13 +18,13 @@ int main() {
     
     initscr();        // Initializes the ncurses screen
     noecho();        // Prevents typed keys from appearing on the screen
-    keypad(stdscr, True); // Enables special keyboard keys such as arrow keys
+    keypad(stdscr, TRUE); // Enables special keyboard keys such as arrow keys
     
     printw("ITS a ME MAR- You mean Luigi."); 
     refresh();
     getch();
 
-    While (1) {
+    while (1) {
 
         clear();
         getmaxyx(stdscr, maxY, maxX); //Gets current terminal height and width
