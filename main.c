@@ -15,6 +15,24 @@ long long getTimeMs() {
     clock_gettime(CLOCK_MONOTONIC, &ts);    // Gets elapsed time
     return(long long)ts.tv_sec * 1000 + ts.tv_nsec / 1000000; // Converts time to milliseconds
 }
+// Function: Loads the saved coin total from a file.
+int loadCoins() {
+    FILE *file = fopen("coins.txt", "r"); // Opens the coin file for reading
+    int coins = 0; // Sets the default coin total to zero
+    if (file != NULL) { // Checks whether the file exists
+        fscanf(file, "%d", &coins); // Reads the saved coin total
+        fclose(file); // Closes the file
+    }
+    return coins; // Returns the saved coin total
+}
+// Function: Saves the current coin total to a file.
+void saveCoins(int coins) {
+    FILE *file = fopen("coins.txt", "w"); // Opens the coin file for writing
+    if (file != NULL) { // Checks whether the file opened successfully
+        fprintf(file, "%d", coins); // Writes the current coin total
+        fclose(file); // Closes the file
+    }
+}
 // Main Function: Starts Game and Handles Movement
 int main() { 
 
@@ -25,7 +43,7 @@ int main() {
     int maxY, maxX;  // Stores Terminal height and width
     int boxX = 20;   // Stores the reward box horizontal position
     int boxY = 4;    // Stores the reward box vertical position
-    int coins = 0;   // Stores the player's gold coins
+    int coins = loadCoins();   // Loads the player's saved coin total
     bool boxOpened = false; // Tracks whether the reward box has been opened
     bool starPower = false; // Tracks whether Luigi received star power
     long long starStart = 0; // Stores when star power began
@@ -41,6 +59,7 @@ int main() {
     timeout(10000);    // Waits up to 10 seconds for keyboard input
     
     printw("ITS a ME MAR- You mean Luigi.\n" "(PRESS ANY KEY TO CONTINUE)"); 
+    printw("Coins Held: %d\n", coins); // Displays the saved coin total
     refresh();
     getch();
 
@@ -93,6 +112,7 @@ int main() {
             boxOpened = true; // Opens the reward box
             if (rand() % 2 == 0) {
                 coins += 10; // Awards ten gold coins
+                saveCoins(coins); // Saves the updated coin total
                 mvprintw(3, 0, "You received 10 gold coins!"); // Displays the coin reward
             }
             else {
