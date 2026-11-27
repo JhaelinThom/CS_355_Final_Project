@@ -23,10 +23,18 @@ int main() {
     int groundY = 5;    // Stores Ground Position
     int key;         // Stores Keyboard Input
     int maxY, maxX;  // Stores Terminal height and width
+    int boxX = 20;   // Stores the reward box horizontal position
+    int boxY = 4;    // Stores the reward box vertical position
+    int coins = 0;   // Stores the player's gold coins
+    bool boxOpened = false; // Tracks whether the reward box has been opened
+    bool starPower = false; // Tracks whether Luigi received star power
+    long long starStart = 0; // Stores when star power began
     bool jumping = false;   // Tracks wether Luigi is jumping
     long long jumpStart = 0;  // Stores when Luigi began jumping
     long long currentTime;  // Stores current time
-    
+
+    srand(time(NULL)); // Seeds the random number generator
+
     initscr();        // Initializes the ncurses screen
     noecho();        // Prevents typed keys from appearing on the screen
     keypad(stdscr, TRUE); // Enables special keyboard keys such as arrow keys
@@ -43,10 +51,26 @@ int main() {
             jumping = false;    // Ends Luigi's jump
             luigiY = groundY;   // Returns Luigi to the ground
         }
+        
+        if (starPower && currentTime - starStart >= 5000) {
+            starPower = false; // Ends star power after five seconds
+        }
 
         clear();
         getmaxyx(stdscr, maxY, maxX); // Gets current terminal height and width
         mvprintw(0, 0, "A: Left | D: Right | SPACE: Jump | Q: Quit");    // Displays Movement Instructions
+        mvprintw(1, 0, "Coins: %d", coins); // Displays the player's coin total
+        if (boxOpened == false && boxX < maxX && boxY < maxY) {
+            mvprintw(boxY, boxX, "[?]"); // Displays the unopened reward box
+        }
+
+        if (boxOpened == true && boxX < maxX && boxY < maxY) {
+            mvprintw(boxY, boxX, "[ ]"); // Displays the opened reward box
+        }
+
+        if (starPower) {
+            mvprintw(2, 0, "STAR POWER ACTIVE!"); // Displays active star power
+        }
         mvprintw(luigiY, luigiX, "L");    // Displays Luigi at his current horizontal position
         refresh();    // Updates screen display
         key = getch();  // Reads keyboard input
@@ -65,7 +89,20 @@ int main() {
             jumpStart = getTimeMs();    // Records the time the jump began
             luigiY = groundY - 1;   // Moves Luigi up 1 row
         }
-    if (key == 'q' || key == 'Q') {
+         if (boxOpened == false && jumping == true && luigiX == boxX && luigiY == boxY) {
+            boxOpened = true; // Opens the reward box
+            if (rand() % 2 == 0) {
+                coins += 10; // Awards ten gold coins
+                mvprintw(3, 0, "You received 10 gold coins!"); // Displays the coin reward
+            }
+            else {
+                starPower = true; // Activates star power
+                starStart = getTimeMs(); // Records when star power began
+                mvprintw(3, 0, "You received Star Power!"); // Displays the star reward
+            }
+            refresh(); // Updates the screen with the reward message
+        }
+        if (key == 'q' || key == 'Q') {
         break;    // Exits Game
         }
     }
